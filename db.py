@@ -4,40 +4,102 @@ from colorama import Fore,init
 import config
 init(autoreset=True)
 
-try:
-    conn=pymysql.connect(host="localhost",user="root",port=3306,database="ecommerce",)
-    cur=conn.cursor()
 
-    if conn:
-        print(Fore.GREEN + "conexion exitosa")
+class Database:
+    def __init__(self):
+        self.conn=None
+        self.cur=None
 
-    def ver_clientes():
-        conn=pymysql.connect(**config.DB_CONFIG,cursorclass=pymysql.cursors.DictCursor)
-        cur=conn.cursor()
-
-        cur.execute("SELECT * FROM cliente")
-        lista=cur.fetchall()
-        conn.close()
-        cur.close()
-        return lista
-
-    def ver_cliente(id):
-        conn=pymysql.connect(**config.DB_CONFIG,cursorclass=pymysql.cursors.DictCursor)
-        cur=conn.cursor()
-
-        cur.execute("SELECT * FROM cliente where ID = %s",id)
-        cliente=cur.fetchall()
-        conn.close()
-        cur.close()
-        return cliente
+    def __enter__(self):
+        try:
+            self.conn=pymysql.connect(**config.DB_CONFIG)
+            self.cur = self.conn.cursor(pymysql.cursors.DictCursor)
+            return self.cur
+        except Exception as e:
+            print(Fore.RED+f"no se pudo conectar a la base de datos {e}")
     
+    def __exit__(self,exc_type, exc_value, traceback):
 
-except Exception as e:
-    print(Fore.RED + "no se pudo conectar ",e)
+        if exc_type is None and self.conn:
+            self.conn.commit()
+        if self.cur:
+            self.cur.close()
+        if self.conn:
+            self.conn.close()
+        return False
 
 
-var=ver_cliente(3)
+
+class Cliente:
+    def __init__(self,nombre,numero,correo,direccion):
+        self.nombre=nombre
+        self.numero=numero
+        self.correo=correo
+        self.direccion=direccion
+
+    def CREATE(self):
+        try:
+            with Database() as cur: 
+                sql = """
+                    INSERT INTO cliente(correo, numero_contacto, nombre, cp, cuidad, calle, numero) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """  
+                valores = (
+                    self.correo,
+                    self.numero,
+                    self.nombre,
+                    self.direccion["cp"],
+                    self.direccion["cuidad"],
+                    self.direccion["calle"],
+                    self.direccion["numero"]
+                ) 
+
+                cur.execute(sql, valores) 
+
+        except Exception as e:
+            print(Fore.RED + f"Error al agregar: {e}") 
+
+    @classmethod
+    def READ_ALL(cls):
+        with Database() as cur:
+            cur.execute("SELECT * FROM cliente")
+            lista=cur.fetchall()
+            return lista
+
+    @classmethod
+    def READ_ONE(cls,id):
+        with Database() as cur:
+            cur.execute("SELECT * FROM cliente where id = %s",id)
+            cliente=cur.fetchone()
+            return cliente
+        
+    @classmethod    
+    def UPDATE(cls, datos):
+        try:
+            with Database() as cur:
+                id_cliente = datos.pop("id", None)
+                if id_cliente is None:
+                    print("Error: No se proporcionó un ID.")
+                    return
+                
+                columnas = ", ".join(f"{key} = %s" for key in datos.keys())
+
+                sql = f"UPDATE cliente SET {columnas} WHERE id = %s"
+
+                valores = list(datos.values()) + [id_cliente]
+                cur.execute(sql, valores)
+
+                print("Registro actualizado correctamente.")
+
+        except Exception as e:
+            print(f"Error al actualizar: {e}")
+
+    
+    @classmethod
+    def DELETE(cls,id):
+        with Database() as cur:
+            cur.execute("DELETE FROM cliente where id = %s",id)
+            print("cliente eliminado...")
 
 
-
-
+Cliente.DELETE(7)

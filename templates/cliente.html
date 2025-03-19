@@ -1,11 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    {{lista}}
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">id</th>
+      <th scope="col">Nombre</th>
+      <th scope="col">correo</th>
+      <th scope="col">numero</th>
+    </tr>
+  </thead>
+  <tbody>
+      {% for cliente in lista%}
+      <tr>
+        <th scope="row">{{loop.index}}</th>
+        <td>{{cliente["ID"]}}</td>
+        <td>{{cliente["NOMBRE"]}}</td>
+        <td>{{cliente["CORREO"]}}</td>
+        <td>{{cliente["NUMERO_CONTACTO"]}}</td>
+      </tr>
+      {%endfor%}
+   
+  </tbody>
+</table>
+{% endblock %}
