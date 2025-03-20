@@ -70,7 +70,7 @@ class Cliente:
     def READ_ONE(cls,id):
         with Database() as cur:
             cur.execute("SELECT * FROM cliente where id = %s",id)
-            cliente=cur.fetchone()
+            cliente=cur.fetchall()
             return cliente
         
     @classmethod    
@@ -102,4 +102,34 @@ class Cliente:
             print("cliente eliminado...")
 
 
-Cliente.DELETE(7)
+
+class Producto:
+    def __init__(self,precio,color,nombre,categoria):
+        self.precio=precio
+        self.color=color
+        self.nombre=nombre
+        self.categoria=categoria
+
+
+    def CREATE(self):
+        with Database() as cur:
+            sql="INSERT INTO producto(precio,color,nombre,categoria) values(%s,%s,%s,%s)"
+            lista=(self.precio,self.color,self.nombre,self.categoria)
+            cur.execute(sql,lista)
+            print("producto agregado")
+
+
+    @classmethod
+    def READ_ALL(cls):
+        with Database() as cur:
+            cur.execute("SELECT * FROM producto")
+            lista=cur.fetchall()
+            return lista
+
+
+    @classmethod
+    def READ_ONE(cls,id):
+        with Database() as cur:
+            cur.execute("SELECT * FROM producto WHERE id = %s",id)
+            lista=cur.fetchall()
+            return lista
