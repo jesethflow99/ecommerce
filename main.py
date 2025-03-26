@@ -6,7 +6,7 @@ from blueprints.cliente.routes import cliente
 app= Flask(__name__)
 
 
-app.register_blueprint(cliente,url_prefix="/clientes")
+app.register_blueprint(cliente,url_prefix="/cliente")
 
 @app.route("/")
 def index():
