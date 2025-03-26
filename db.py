@@ -133,3 +133,88 @@ class Producto:
             cur.execute("SELECT * FROM producto WHERE id = %s",id)
             lista=cur.fetchall()
             return lista
+        
+
+    @classmethod
+    def UPDATE(cls,datos):
+        try:
+            with Database() as cur:
+                id_producto = datos.pop("id", None)
+                if id_producto is None:
+                    print("Error: No se proporcionó un ID.")
+                    return
+                
+                columnas = ", ".join(f"{key} = %s" for key in datos.keys())
+
+                sql = f"UPDATE producto SET {columnas} WHERE id = %s"
+
+                valores = list(datos.values()) + [id_producto]
+                cur.execute(sql, valores)
+
+                print("Registro actualizado correctamente.")
+
+        except Exception as e:
+            print(f"Error al actualizar: {e}")
+
+    @classmethod
+    def DELETE(cls,id):
+        with Database() as cur:
+            cur.execute("DELETE FROM producto where id = %s",id)
+            print("producto eliminado...")
+
+    class Ventas:
+        def __init__(self,cliente,ticket,producto,cantidad):
+            self.cliente=cliente
+            self.ticket=ticket
+            self.producto=producto
+            self.cantidad=cantidad
+
+        def CREATE(self):
+            with Database() as cur:
+                sql="INSERT INTO ventas(cliente,ticket,producto,cantidad) values(%s,%s,%s,%s)"
+                lista=(self.cliente,self.ticket,self.producto,self.cantidad)
+                cur.execute(sql,lista)
+                print("venta agregada")
+            
+        @classmethod
+        def READ_ALL(cls):
+            with Database() as cur:
+                cur.execute("SELECT * FROM ventas")
+                lista=cur.fetchall()
+                return lista
+        
+        @classmethod
+        def READ_ONE(cls,id):
+            with Database() as cur:
+                cur.execute("SELECT * FROM ventas WHERE id = %s",id)
+                lista=cur.fetchall()
+                return lista
+        
+        @classmethod
+        def UPDATE(cls,datos):
+            try:
+                with Database() as cur:
+                    id_venta = datos.pop("id", None)
+                    if id_venta is None:
+                        print("Error: No se proporcionó un ID.")
+                        return
+                    
+                    columnas = ", ".join(f"{key} = %s" for key in datos.keys())
+
+                    sql = f"UPDATE ventas SET {columnas} WHERE id = %s"
+
+                    valores = list(datos.values()) + [id_venta]
+                    cur.execute(sql, valores)
+
+                    print("Registro actualizado correctamente.")
+
+            except Exception as e:
+                print(f"Error al actualizar: {e}")
+            
+        @classmethod
+        def DELETE(cls,id):
+            with Database() as cur:
+                cur.execute("DELETE FROM ventas where id = %s",id)
+                print("venta eliminada...")
+
+        
